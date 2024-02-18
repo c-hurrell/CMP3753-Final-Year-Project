@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Region
   - GlobalEconomy
+  - Location
+  - Faction
   layers:
   - Default
   - TransparentFX
