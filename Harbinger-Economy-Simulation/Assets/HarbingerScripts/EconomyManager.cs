@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using HarbingerCore;
 
 namespace HarbingerScripts
 {
     public class EconomyManager : MonoBehaviour
     {
-        [SerializeField] public List<Resource> globalResourceMarket;
+        [SerializeField] public List<ResourceIdentifier> globalResourceMarket;
 
         [SerializeField] public List<FactionIdentifier> factions;
         [SerializeField] private GameObject[] factionObjects;

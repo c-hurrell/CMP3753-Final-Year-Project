@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using HarbingerCore;
 
 namespace HarbingerScripts
 {
@@ -16,8 +17,14 @@ namespace HarbingerScripts
                 child.location.belongsToRegion = region.regionIdentity;
                 region.locations.Add(child.location.locationID);
             }
-
-            region.resourceMarket = economyManager.GetComponent<EconomyManager>().globalResourceMarket;
+            foreach(var resource in economyManager.GetComponent<EconomyManager>().globalResourceMarket) 
+                region.resourceMarket.Add(new Resource
+                {
+                    resourceInfo = resource,
+                    currentValue = resource.baseVal,
+                    stored = 0,
+                    demand = 0
+                });
         }
         
         // Start is called before the first frame update

@@ -1,3 +1,4 @@
+using HarbingerCore;
 using UnityEngine;
 
 namespace HarbingerScripts
