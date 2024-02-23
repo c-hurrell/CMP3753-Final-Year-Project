@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace HarbingerCore
 {
+    // No longer in use
     [Serializable] public struct RegionIdentifier
     {
         // Unique identifies for each region

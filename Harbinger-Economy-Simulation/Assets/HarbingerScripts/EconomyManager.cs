@@ -9,10 +9,12 @@ namespace HarbingerScripts
         [SerializeField] public List<ResourceIdentifier> globalResourceMarket;
 
         [SerializeField] public List<FactionIdentifier> factions;
-        [SerializeField] private GameObject[] factionObjects;
+        private GameObject[] _factionObjects;
         
         [SerializeField] public List<RegionIdentifier> regions;
-        [SerializeField] private GameObject[] regionObjects;
+        private GameObject[] _regionObjects;
+
+        private GameObject[] _locationObjects;
 
         [SerializeField] public List<Vehicle> availableVehicles;
 
@@ -28,17 +30,19 @@ namespace HarbingerScripts
         // Start is called before the first frame update
         void Start()
         {
-            regionObjects = GameObject.FindGameObjectsWithTag("Region");
+            _regionObjects = GameObject.FindGameObjectsWithTag("Region");
             // Initializes each region with the resources.
-            foreach (var regionObject in regionObjects)
+            foreach (var regionObject in _regionObjects)
             {
                 // Will add automatic assignment with sorted list later it drove me crazy enough last time for now it can be manual.
                 regions.Add(regionObject.GetComponent<RegionManager>().region.regionIdentity);
             }
+            _locationObjects = GameObject.FindGameObjectsWithTag("Location");
+                
+            
+            _factionObjects = GameObject.FindGameObjectsWithTag("Faction");
 
-            factionObjects = GameObject.FindGameObjectsWithTag("Faction");
-
-            foreach (var factionObject in factionObjects)
+            foreach (var factionObject in _factionObjects)
             {
                 factions.Add(factionObject.GetComponent<FactionManager>().faction.factionIdentity);
             }

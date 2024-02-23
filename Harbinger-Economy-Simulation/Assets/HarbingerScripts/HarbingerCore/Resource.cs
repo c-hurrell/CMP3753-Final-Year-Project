@@ -24,8 +24,6 @@ namespace HarbingerCore
         public ResourceIdentifier resourceInfo;
         // The current value due to supply/demand
         public float currentValue;
-        // Amount stored locally
-        public float stored; 
         // Amount needed locally
         public float demand;
     }

@@ -1,30 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HarbingerCore;
 using UnityEngine;
 
 namespace HarbingerCore
 {
-    [Serializable] public struct LocationIdentifier
+    [Serializable] public struct LocationIdentifier 
     {
         public string name;
         public int locationID;
     }
-    public class TransactionEventArgs : EventArgs
+
+    public class DockApproveEventArgs : EventArgs
+    {
+        public Transaction Transaction { get; set; }
+    }
+    public class BillEventArgs : EventArgs
     {
         // Change of currency
-        public float currency;
+        public float Currency { get; set; }
         // Identifying arguments to identify relevant faction?
-        public bool isBuyer;
+        public int BuyerID { get; set; }
+        public int SellerID { get; set; }
     }
     [Serializable] public class Location
     {
-        public delegate void VehilceDockedEventHandler(object source, EventArgs args);
-        public event VehilceDockedEventHandler VehicleDocked;
-
-        public delegate void TransactionEventHandler(object source, EventArgs args);
-        public event TransactionEventHandler Transaction;
+        public static event EventHandler<DockApproveEventArgs> DockApprove;
+        public static event EventHandler<DockApproveEventArgs> UndockApprove; 
+        
+        //public static event EventHandler<TransactionEventArgs> Transaction;
+        public static event EventHandler<BillEventArgs> Bill;
 
         public LocationIdentifier identifier;
 
@@ -36,53 +41,89 @@ namespace HarbingerCore
 
         public float loadSpeed;
 
-        public List<Resource> resources;
+        public List<Resource> resourceMarket;
+
+        // stores resource name and the amount held.
+        public List<Tuple<string, float>> inventory = new List<Tuple<string, float>>();
 
         public List<ResourceProduction> resourceProductions;
 
+        public List<Transaction> dockedVehicles = new List<Transaction>();
+        public List<Transaction> dockingQueue = new List<Transaction>();
         public int dockingCapacity;
-        public List<global::HarbingerCore.Vehicle> vehiclesPresent;
+        //public List<Vehicle> vehiclesPresent;
+
+        private List<FactionIdentifier> _vehicles;
 
         public bool allowsRefueling;
 
         public void UpdateLocation()
         {
-            foreach (var cargoHold in from vehicle in vehiclesPresent from cargoHold in vehicle.cargoHolds from resourceProduction in resourceProductions 
-                     where resourceProduction.resourcesRequired.Contains(cargoHold.resourceHeld) select cargoHold)
+            if (dockingQueue.Count > 0 && dockedVehicles.Count <= dockingCapacity)
             {
-                
+                var dockedVehicle = dockingQueue[0];
+                dockedVehicles.Add(dockedVehicle);
+                OnDockApprove(dockedVehicle);
             }
-
-            foreach (var vehicle in vehiclesPresent)
+            // Implement Unloading Logic
+            foreach (var vehicle in dockedVehicles)
             {
-                foreach (var cargoHold in from cargoHold in vehicle.cargoHolds from resourceProduction in resourceProductions select cargoHold)
+                foreach (var cargo in vehicle.CargoManifest)
                 {
-                    UpdateAmountResource(cargoHold.resourceHeld, 
-                        cargoHold.UnloadResource(cargoHold.resourceHeld, loadSpeed),
-                        vehicle.factionID);
+                    
+                    
                 }
             }
+            
         }
         public void UpdateAmountResource(string resourceName, float amount, int faction)
         {
-            foreach (var resource in resources.Where(resource => resource.resourceInfo.name == resourceName))
+            
+        }
+        public virtual void DockRequest(object source, DockEventArgs e)
+        {
+            var newVehicle = new Transaction
             {
-                resource.stored += amount;
-                
+                VehicleID = e.VehicleID,
+                FactionID = e.FactionID,
+                CargoManifest = e.CargoManifest,
+                ResourcesTransferred = null,
+                Total = 0
+            };
+
+            if (dockedVehicles.Count >= dockingCapacity - 1)
+            {
+                dockingQueue.Add(newVehicle);
+            }
+            else
+            {
+                dockedVehicles.Add(newVehicle);
+                OnDockApprove(newVehicle);
             }
         }
-
-        protected virtual void OnVehicleDocked()
+        
+        protected virtual void OnDockApprove(Transaction transaction)
         {
-            //if(VehicleDocked != null)
-            //    VehicleDocked(this, );
+            DockApprove?.Invoke(this, new DockApproveEventArgs {
+                Transaction = transaction
+            });
         }
 
-        protected virtual void OnTransaction()
+        protected virtual void OnUndockApprove(Transaction transaction)
         {
+            UndockApprove?.Invoke(this, new DockApproveEventArgs
+            {
+                Transaction = transaction
+            });
+        }
 
+        protected virtual void OnBill(BillEventArgs e)
+        {
+            Bill?.Invoke(null, e);
         }
     }
+    
+    // REPLACE THIS YOU DUMBASS
     [Serializable] public class ResourceProduction
     {
         // 

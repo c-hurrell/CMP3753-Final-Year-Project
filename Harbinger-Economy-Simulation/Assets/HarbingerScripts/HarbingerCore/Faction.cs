@@ -22,12 +22,13 @@ namespace HarbingerCore
         
         public virtual void InitFaction()
         {
-
+            
         }
 
-        public virtual void OnTransaction(object source, TransactionEventArgs e)
+        public virtual void OnTransaction(object source, BillEventArgs e)
         {
-            credits += e.currency;
+            if (e.BuyerID == factionIdentity.id) credits -= e.Currency;
+            else if (e.SellerID == factionIdentity.id) credits += e.Currency;
         }
     }
 }

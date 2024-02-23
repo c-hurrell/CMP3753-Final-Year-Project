@@ -2,17 +2,29 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using HarbingerScripts;
 // Change to generic vector3?
 using UnityEngine;
 
 namespace HarbingerCore
 {
+    public partial class DockEventArgs : EventArgs
+    {
+        public int VehicleID { get; set; }
+        public int FactionID { get; set; }
+        
+        public List<CargoHold> CargoManifest { get; set; }
+    }
     [Serializable] public class Vehicle
     {
         public string name;
-
-        public int factionID;
+        public int vehicleID;
+        public FactionIdentifier faction;
+        
+        public static event EventHandler DockRequest;
+        public static event EventHandler UndockRequest;
+        
+        
+        // Listen for approval
         
         public enum PathDirection
         {
@@ -22,13 +34,15 @@ namespace HarbingerCore
         
         // Do I need to update current position?
         // -- > no
-        public Vector3 currentPosition;
+        // Dont care about this anymore
+        // public Vector3 currentPosition;
         // May need to change this approach to account for movement of bodies in space e.g. orbit around a star?
-        public List<Vector3> path;
-
+        
+        // This is important
+        public List<Vector3> route;
         public PathDirection direction = PathDirection.Along;
         
-        private int _currentTarget = 1;
+        //private int _currentTarget = 1;
         
         public float fuelCapacity;
         public float amountOfFuel;
@@ -40,94 +54,49 @@ namespace HarbingerCore
 
         public float estimatedRange;
 
+        public List<string> resourcesDemandedOnRoute = new List<string>();
         public LocationIdentifier atLocation;
-        public bool docked;
-        public bool isLoading;
-        public bool isWaitingToDock;
+
+        public enum Status
+        {
+            Travelling,
+            Docked,
+            WaitingToDock
+        }
+
+        public Status status;
 
         public List<CargoHold> cargoHolds;
 
+        
+        // Redundant function;
         public void VehicleUpdate()
         {
-            if (docked)
-            {
-                foreach (var cargoHold in cargoHolds.Where(cargoHold => cargoHold.isLoading == true))
-                {
-                    isLoading = true;
-                    break;
-                }
-                
-            }
-            
             // Could change it so OnCollision in Unity handles the docking??
-            if (currentPosition == path[_currentTarget])
-            {
-                
-            }
+            // if (currentPosition == path[_currentTarget])
+            // {
+            //     
+            // }
             // Implement Movement mechanics?
         }
-        
-        // If docking successful return true
-        public bool DockVehicle(Location location)
-        {
-            if (location.vehiclesPresent.Count >= location.dockingCapacity) return false;
-            
-            location.vehiclesPresent.Add(this);
-            return true;
-            
-        }
-        
-        // If undocking successful return true
-        public bool UndockVehicle(Location location)
-        {
-            // If vehicle is still loading or unloading it can't undock.
-            if (isLoading) return false;
-            location.vehiclesPresent.Remove(this);
-            
-            return true;
-        }
-        
         // Amount inputted will be loaded and the return is the value loaded to be taken away from the total
         public float Refuel(float amount)
         {
             // If fuel is at capacity don't load any fuel
             if (amountOfFuel >= fuelCapacity)
             {
-                isLoading = false;
+                status = Status.Docked;
                 return 0;
             }
             
-            // If the amount loaded goes over capacity only add to capacity
-            if (amountOfFuel + amount >= fuelCapacity)
-            {
-                var total = amount - (amountOfFuel + amount - fuelCapacity);
-                return total;
-            }
+            // If the amount loaded doesn't go over capacity load all fuel
+            if (!(amountOfFuel + amount >= fuelCapacity)) return amount;
             
-            // If no issues load all fuel
-            isLoading = true;
-            return amount;
-        }
+            // Else load whatever fuel is remaining
+            var total = amount - (amountOfFuel + amount - fuelCapacity);
+            return total;
 
-        public void SetVehiclePath(List<Vector3> newPath)
-        {
-            path = newPath;
-            
-            // Sets new target
-            _currentTarget = 0;
-            
-            var closestDist = CalculateDistance(currentPosition, path[0]);
-            
-            for (var i = 0; i < path.Count; i++)
-            {
-                var distance = CalculateDistance(currentPosition, path[i]);
-                if (distance < closestDist)
-                {
-                    _currentTarget = i;
-                }
-            }
         }
-
         public double CalculateDistance(Vector3 start, Vector3 end)
         {
             var xDis = start.x - end.x;
@@ -137,12 +106,34 @@ namespace HarbingerCore
             
             return distance;
         }
-
-        public void OnVehicleDocked(object sender, EventArgs e)
+        
+        // =========================
+        // ==== EVENT FUNCTIONS ====
+        // =========================
+        #region Dock Event Functions
+        // Dock Event Functions
+        protected virtual void OnDockRequest()
         {
-            Debug.Log("VehicleDocked");
+            status = Status.WaitingToDock;
+            DockRequest?.Invoke(null, new DockEventArgs {
+                VehicleID = vehicleID,
+                FactionID = faction.id,
+                CargoManifest = cargoHolds
+                // Add in sending loadable cargo?
+            });
+        }
+        public virtual void OnDockApprove(object source, DockApproveEventArgs e)
+        {
+            if(e.Transaction.VehicleID == vehicleID && e.Transaction.FactionID == faction.id)
+                status = Status.Docked;
         }
 
-
+        public virtual void OnUndockApprove(object source, DockApproveEventArgs e)
+        {
+            if (e.Transaction.VehicleID != vehicleID || e.Transaction.FactionID != faction.id) return;
+            cargoHolds = e.Transaction.CargoManifest;
+            status = Status.Travelling;
+        }
+        #endregion
     }
 }

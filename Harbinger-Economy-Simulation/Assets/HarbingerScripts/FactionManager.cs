@@ -11,10 +11,9 @@ namespace HarbingerScripts
         [SerializeField] public Faction faction;
         
 
-        void Awake()
+        private void Awake()
         {
-            
-            
+            faction.InitFaction();
         }
         
         // Start is called before the first frame update
@@ -27,7 +26,7 @@ namespace HarbingerScripts
             {
                 if (locationObject.GetComponent<LocationManager>().location.factionID == faction.factionIdentity.id)
                 {
-                    faction.locationsOwned.Add(locationObject.GetComponent<LocationManager>().location.locationID);
+                    faction.locationsOwned.Add(locationObject.GetComponent<LocationManager>().location.identifier.locationID);
                 }
             }
             
