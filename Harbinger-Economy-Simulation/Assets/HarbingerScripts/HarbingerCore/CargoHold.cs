@@ -29,8 +29,7 @@ namespace HarbingerCore
             
             resourceHeld = resourceName;
             
-            if (amountHeld + amount >= capacity)
-            {
+            if (amountHeld + amount >= capacity) {
                 var loaded =  amount - ((amountHeld + amount) - capacity);
                 amountHeld += loaded;
                 isLoading = false;
@@ -38,13 +37,11 @@ namespace HarbingerCore
             }
             
             amountHeld += amount;
-
             return amount;
         }
 
         // Returns the amount that is unloaded out of the hold. This is the amount should be attempted to unloaded each update
-        public float UnloadResource(string resourceName, float amount)
-        {
+        public float UnloadResource(string resourceName, float amount) {
             // If you are attempting to unload a resource that isn't on the ship don't unload
             if (resourceName != resourceHeld || amountHeld <= 0) {
                 isLoading = false;
@@ -53,8 +50,7 @@ namespace HarbingerCore
 
             isLoading = true;
 
-            if (amountHeld - amount <= 0)
-            {
+            if (amountHeld - amount <= 0) {
                 var unloaded = amount - (amountHeld - amount);
                 amountHeld -= unloaded;
                 isLoading = false;

@@ -6,10 +6,27 @@ using UnityEngine;
 
 namespace HarbingerCore
 {
+    [Serializable] public struct LocationIdentifier
+    {
+        public string name;
+        public int locationID;
+    }
+    public class TransactionEventArgs : EventArgs
+    {
+        // Change of currency
+        public float currency;
+        // Identifying arguments to identify relevant faction?
+        public bool isBuyer;
+    }
     [Serializable] public class Location
     {
-        public int locationID;
-        public string name;
+        public delegate void VehilceDockedEventHandler(object source, EventArgs args);
+        public event VehilceDockedEventHandler VehicleDocked;
+
+        public delegate void TransactionEventHandler(object source, EventArgs args);
+        public event TransactionEventHandler Transaction;
+
+        public LocationIdentifier identifier;
 
         public int factionID = 0;
         
@@ -53,6 +70,17 @@ namespace HarbingerCore
                 resource.stored += amount;
                 
             }
+        }
+
+        protected virtual void OnVehicleDocked()
+        {
+            //if(VehicleDocked != null)
+            //    VehicleDocked(this, );
+        }
+
+        protected virtual void OnTransaction()
+        {
+
         }
     }
     [Serializable] public class ResourceProduction

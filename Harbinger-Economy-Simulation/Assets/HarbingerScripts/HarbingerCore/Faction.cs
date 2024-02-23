@@ -20,14 +20,14 @@ namespace HarbingerCore
         public List<int> locationsOwned;
         public List<Vehicle> vehiclesOwned;
         
-        public void InitFaction()
+        public virtual void InitFaction()
         {
 
         }
 
-        public void Transaction(float amount)
+        public virtual void OnTransaction(object source, TransactionEventArgs e)
         {
-
+            credits += e.currency;
         }
     }
 }

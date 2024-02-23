@@ -40,6 +40,7 @@ namespace HarbingerCore
 
         public float estimatedRange;
 
+        public LocationIdentifier atLocation;
         public bool docked;
         public bool isLoading;
         public bool isWaitingToDock;
@@ -135,6 +136,11 @@ namespace HarbingerCore
             var distance = Math.Sqrt(Math.Pow(xDis, 2) + Math.Pow(yDis, 2));
             
             return distance;
+        }
+
+        public void OnVehicleDocked(object sender, EventArgs e)
+        {
+            Debug.Log("VehicleDocked");
         }
 
 

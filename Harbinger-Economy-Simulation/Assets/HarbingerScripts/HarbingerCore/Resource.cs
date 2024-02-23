@@ -8,7 +8,8 @@ namespace HarbingerCore
     {
         Solid,
         Liquid,
-        Gas
+        Gas,
+        Passenger
     }
     [Serializable] public struct ResourceIdentifier
     {
