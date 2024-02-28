@@ -30,7 +30,6 @@ namespace HarbingerScripts
                 }
             }
             
-            
             if (faction.factionIdentity.id <= 0) return;
         }
 

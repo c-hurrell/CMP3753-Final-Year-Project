@@ -10,23 +10,10 @@ namespace HarbingerCore
         public string name;
         public int locationID;
     }
-
-    public class DockApproveEventArgs : EventArgs
-    {
-        public Transaction Transaction { get; set; }
-    }
-    public class BillEventArgs : EventArgs
-    {
-        // Change of currency
-        public float Currency { get; set; }
-        // Identifying arguments to identify relevant faction?
-        public int BuyerID { get; set; }
-        public int SellerID { get; set; }
-    }
     [Serializable] public class Location
     {
-        public static event EventHandler<DockApproveEventArgs> DockApprove;
-        public static event EventHandler<DockApproveEventArgs> UndockApprove; 
+        public event EventHandler<DockApproveEventArgs> DockApprove;
+        public event EventHandler<DockApproveEventArgs> Undock; 
         
         //public static event EventHandler<TransactionEventArgs> Transaction;
         public static event EventHandler<BillEventArgs> Bill;
@@ -44,12 +31,14 @@ namespace HarbingerCore
         public List<Resource> resourceMarket;
 
         // stores resource name and the amount held.
-        public List<Tuple<string, float>> inventory = new List<Tuple<string, float>>();
+        public List<Tuple<string, float>> Inventory = new List<Tuple<string, float>>();
+        
+        // Facilities
+        public SpaceportFacility spaceport;
+        public List<ProductionFacility> productionFacilities;
 
-        public List<ResourceProduction> resourceProductions;
-
-        public List<Transaction> dockedVehicles = new List<Transaction>();
-        public List<Transaction> dockingQueue = new List<Transaction>();
+        public List<StationTransaction> dockedVehicles = new List<StationTransaction>();
+        public List<StationTransaction> dockingQueue = new List<StationTransaction>();
         public int dockingCapacity;
         //public List<Vehicle> vehiclesPresent;
 
@@ -57,6 +46,10 @@ namespace HarbingerCore
 
         public bool allowsRefueling;
 
+        public void InitLocation()
+        {
+            
+        }
         public void UpdateLocation()
         {
             if (dockingQueue.Count > 0 && dockedVehicles.Count <= dockingCapacity)
@@ -71,7 +64,6 @@ namespace HarbingerCore
                 foreach (var cargo in vehicle.CargoManifest)
                 {
                     
-                    
                 }
             }
             
@@ -82,10 +74,11 @@ namespace HarbingerCore
         }
         public virtual void DockRequest(object source, DockEventArgs e)
         {
-            var newVehicle = new Transaction
+            var newVehicle = new StationTransaction
             {
                 VehicleID = e.VehicleID,
-                FactionID = e.FactionID,
+                InitiatingFaction = e.FactionID,
+                TargetFaction = factionID,
                 CargoManifest = e.CargoManifest,
                 ResourcesTransferred = null,
                 Total = 0
@@ -102,16 +95,16 @@ namespace HarbingerCore
             }
         }
         
-        protected virtual void OnDockApprove(Transaction transaction)
+        protected virtual void OnDockApprove(StationTransaction transaction)
         {
             DockApprove?.Invoke(this, new DockApproveEventArgs {
                 Transaction = transaction
             });
         }
 
-        protected virtual void OnUndockApprove(Transaction transaction)
+        protected virtual void OnUndock(StationTransaction transaction)
         {
-            UndockApprove?.Invoke(this, new DockApproveEventArgs
+            Undock?.Invoke(this, new DockApproveEventArgs
             {
                 Transaction = transaction
             });
@@ -121,23 +114,23 @@ namespace HarbingerCore
         {
             Bill?.Invoke(null, e);
         }
-    }
-    
-    // REPLACE THIS YOU DUMBASS
-    [Serializable] public class ResourceProduction
-    {
-        // 
-        public string name = "Production Type";
-        public List<string> resourcesProduced;
-        // amount produced each per second
-        // Struct for resources productions
-        public List<float> amountProduced;
-        public List<float> exportStored;
 
-        // 
-        public List<string> resourcesRequired;
-        // amount required per second
-        public List<float> amountRequired;
-        public List<float> importStored;
+        public void OnDestroy()
+        {
+            // unsubscribe from all events.
+        }
+    }
+    public class DockApproveEventArgs : EventArgs
+    {
+        public StationTransaction Transaction { get; set; }
+    }
+    public class BillEventArgs : EventArgs
+    {
+        public int LocationID { get; set; }
+        // Change of currency
+        public float Currency { get; set; }
+        // Identifying arguments to identify relevant faction?
+        public int FactionID { get; set; }
+        public int VehicleID { get; set; }
     }
 }

@@ -9,11 +9,19 @@ namespace HarbingerCore
     {
         public override void InitFaction()
         {
-
+            Location.Bill += OnBill;
         }
 
-        public override void OnTransaction(object source, TransactionEventArgs e)
+        public override void OnBill(object source, BillEventArgs e)
         {
+            if (e.FactionID != factionIdentity.id) return;
+            OnApproval(new ApprovalEventArgs
+            {
+                LocationID = e.LocationID,
+                Status = true,
+                FactionID = e.FactionID,
+                VehicleID = e.VehicleID
+            });
             //base.OnTransaction(source, e); 
         }
 

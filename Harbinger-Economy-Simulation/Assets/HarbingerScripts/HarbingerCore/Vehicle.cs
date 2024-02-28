@@ -7,21 +7,18 @@ using UnityEngine;
 
 namespace HarbingerCore
 {
-    public partial class DockEventArgs : EventArgs
-    {
-        public int VehicleID { get; set; }
-        public int FactionID { get; set; }
-        
-        public List<CargoHold> CargoManifest { get; set; }
-    }
     [Serializable] public class Vehicle
     {
         public string name;
         public int vehicleID;
         public FactionIdentifier faction;
         
-        public static event EventHandler DockRequest;
-        public static event EventHandler UndockRequest;
+        // Planned change :
+        // Instead of static event have a location subscribe to this event when a vehicle comes into range that way its only listening for vehicles in its range.
+        public event EventHandler<DockEventArgs> DockRequest;
+        
+        // Redundant as Undocking is handled by the location
+        //public static event EventHandler UndockRequest;
         
         
         // Listen for approval
@@ -32,13 +29,10 @@ namespace HarbingerCore
             Returning
         }
         
-        // Do I need to update current position?
-        // -- > no
-        // Dont care about this anymore
         // public Vector3 currentPosition;
         // May need to change this approach to account for movement of bodies in space e.g. orbit around a star?
         
-        // This is important
+        // This is important FactionManager will feed in calculated routes to this vehicle
         public List<Vector3> route;
         public PathDirection direction = PathDirection.Along;
         
@@ -46,13 +40,25 @@ namespace HarbingerCore
         
         public float fuelCapacity;
         public float amountOfFuel;
-
+        
+        // base usage is the usage to maintain vehicle speed etc. whilst docked a vehicle would be using these.
         public float baseUsagePerTick;
+        // modifier will be a total determined by the acceleration or deceleration of the vehicle which will increase the fuel consumption
         public float modifier;
+        // Explanation :
+        // In space there is a lack of resistive forces so most fuel that would be needed is to maintain power functionality and keep "engines" in a standby state
 
+        public float maxSpeed;
+        public float maxAcceleration;
+
+        
         //public float averageUsage;
-
+        
+        
+        // base usage will help the vehicle estimate how far they can really go 
         public float estimatedRange;
+        // threshold which the vehicle decides it needs to get fuel in order to continue its journey 
+        [SerializeField] private float rangeThreshold = 10.0f;
 
         public List<string> resourcesDemandedOnRoute = new List<string>();
         public LocationIdentifier atLocation;
@@ -68,7 +74,10 @@ namespace HarbingerCore
 
         public List<CargoHold> cargoHolds;
 
-        
+        public void InitVehicle()
+        {
+            
+        }
         // Redundant function;
         public void VehicleUpdate()
         {
@@ -106,6 +115,10 @@ namespace HarbingerCore
             
             return distance;
         }
+        public void OnDestroy()
+        {
+            // unsubscribe from all events.
+        }
         
         // =========================
         // ==== EVENT FUNCTIONS ====
@@ -120,20 +133,34 @@ namespace HarbingerCore
                 FactionID = faction.id,
                 CargoManifest = cargoHolds
                 // Add in sending loadable cargo?
+                // Add in fuel request
             });
         }
+        // Vehicle should always be the initiating faction
+        
         public virtual void OnDockApprove(object source, DockApproveEventArgs e)
         {
-            if(e.Transaction.VehicleID == vehicleID && e.Transaction.FactionID == faction.id)
-                status = Status.Docked;
+            if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
+            
+            status = Status.Docked;
         }
 
-        public virtual void OnUndockApprove(object source, DockApproveEventArgs e)
+        public virtual void OnUndock(object source, DockApproveEventArgs e)
         {
-            if (e.Transaction.VehicleID != vehicleID || e.Transaction.FactionID != faction.id) return;
+            if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
+            
             cargoHolds = e.Transaction.CargoManifest;
             status = Status.Travelling;
         }
         #endregion
+
+
+    }
+    public class DockEventArgs : EventArgs
+    {
+        public int VehicleID { get; set; }
+        public int FactionID { get; set; }
+        
+        public List<CargoHold> CargoManifest { get; set; }
     }
 }

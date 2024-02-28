@@ -35,5 +35,19 @@ namespace HarbingerScripts
         {
         
         }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            // If object is a vehicle listen for the the specific dock request
+            if(other.CompareTag("Vehicle"))
+                other.GetComponent<VehicleController>().vehicle.DockRequest += location.DockRequest;
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            // If object is a vehicle stop listening for that specific dock request
+            if(other.CompareTag("Vehicle"))
+                other.GetComponent<VehicleController>().vehicle.DockRequest -= location.DockRequest;
+        }
     }
 }
