@@ -19,6 +19,11 @@ namespace HarbingerScripts
         
         }
 
+        void FixedUpdate()
+        {
+            
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             // subscribe to that locations events...

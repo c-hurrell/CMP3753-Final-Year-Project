@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.XR.WindowsMR.Input;
 
 namespace HarbingerCore
 {
@@ -10,7 +11,7 @@ namespace HarbingerCore
         public string name;
         public int locationID;
     }
-    [Serializable] public class Location
+    [Serializable] public class Location : IEconomyActor
     {
         public event EventHandler<DockApproveEventArgs> DockApprove;
         public event EventHandler<DockApproveEventArgs> Undock; 
@@ -32,6 +33,9 @@ namespace HarbingerCore
 
         // stores resource name and the amount held.
         public List<Tuple<string, float>> Inventory = new List<Tuple<string, float>>();
+
+        public List<string> inDemandResources = new List<string>();
+        public List<string> producedResources = new List<string>();
         
         // Facilities
         public SpaceportFacility spaceport;
@@ -45,12 +49,13 @@ namespace HarbingerCore
         private List<FactionIdentifier> _vehicles;
 
         public bool allowsRefueling;
+        
 
-        public void InitLocation()
+        public void EconomyAwake()
         {
             
         }
-        public void UpdateLocation()
+        public void EconomyUpdate()
         {
             if (dockingQueue.Count > 0 && dockedVehicles.Count <= dockingCapacity)
             {
@@ -59,18 +64,50 @@ namespace HarbingerCore
                 OnDockApprove(dockedVehicle);
             }
             // Implement Unloading Logic
-            foreach (var vehicle in dockedVehicles)
-            {
+            // I hate this - must be a better way to do this?
+            foreach (var vehicle in dockedVehicles) {
                 foreach (var cargo in vehicle.CargoManifest)
                 {
-                    
+                    foreach (var res in inDemandResources.Where(res => cargo.resourceHeld == res))
+                        LoadToInventory(res, cargo.UnloadResource(res, loadSpeed));
+
+                    foreach (var res in vehicle.ResourcesNeeded.Where(res => producedResources.Contains(res)))
+                        // UnloadFromInventory will check if there is any resource to unload then attempt to unload it.
+                        LoadToInventory(res,cargo.LoadResource(res, UnloadFromInventory(res)));
                 }
             }
-            
         }
-        public void UpdateAmountResource(string resourceName, float amount, int faction)
+
+        public void EconomyDestroy()
         {
+            // Unsubscribe from all events and any other misc cleanup.
+        }
+        public void LoadToInventory(string resourceName, float amount)
+        {
+            for (var index = 0; index < Inventory.Count; index++)
+            {
+                var item = Inventory[index];
+                if (item.Item1 != resourceName) continue;
+                var currentAmount = item.Item2;
+                currentAmount += amount;
+                // Tuples were a bad idea. bloody immutable. much frustration.
+                Inventory[index] = new Tuple<string, float>(item.Item1, currentAmount);
+            }
+        }
+
+        public float UnloadFromInventory(string resourceName)
+        {
+            var amount = loadSpeed;
             
+            foreach (var (item1, amountHeld) in Inventory)
+            {
+                if (item1 != resourceName) continue;
+                if (amountHeld - amount <= 0)
+                {
+                    return amount + (amountHeld - amount);
+                }
+            }
+            return amount;
         }
         public virtual void DockRequest(object source, DockEventArgs e)
         {

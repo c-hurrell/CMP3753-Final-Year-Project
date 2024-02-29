@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using HarbingerCore;
@@ -18,6 +19,9 @@ namespace HarbingerScripts
         private GameObject[] _locationObjects;
 
         [SerializeField] public List<Vehicle> availableVehicles;
+        
+        [SerializeField] private float timestep = 0.02f;
+        private float _counter = 0;
 
         private void Awake()
         {
@@ -49,16 +53,17 @@ namespace HarbingerScripts
 
 
         }
-
-        // Update is called once per frame
-        void Update()
+        private void FixedUpdate()
         {
-        
-        }
-
-        public void EcoTransaction(int payingFaction, int receivingFaction, float amount)
-        {
-            
+            // Adjust for time step if needed
+            if (!(_counter >= 1 / timestep)) {
+                _counter += 1;
+                return;
+            }
+            foreach (var location in _locationObjects)
+            {
+                location.GetComponent<LocationManager>().location.EconomyUpdate();
+            }
         }
     }
 }

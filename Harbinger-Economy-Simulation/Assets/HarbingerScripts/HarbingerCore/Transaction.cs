@@ -23,6 +23,8 @@ namespace HarbingerCore
         public int VehicleID { get; set; }  
         public List<CargoHold> CargoManifest { get; set; }
         public List<Tuple<string,float>> ResourcesTransferred { get; set; }
+        
+        public List<string> ResourcesNeeded { get; set; }
     }
     
     // implement further transaction types here

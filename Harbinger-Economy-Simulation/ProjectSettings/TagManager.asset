@@ -8,6 +8,7 @@ TagManager:
   - GlobalEconomy
   - Location
   - Faction
+  - Vehicle
   layers:
   - Default
   - TransparentFX

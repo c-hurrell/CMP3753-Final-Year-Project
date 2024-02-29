@@ -15,6 +15,12 @@ namespace HarbingerScripts
         // When location is loading it needs to fetch the resources available in the global market
         private void Awake()
         {
+            // If it hasn't been set manually fetch global economy
+            if (economyManager == null) {
+                economyManager = GameObject.FindGameObjectWithTag("GlobalEconomy");
+            }
+            
+            // Sets location and global resource market
             location.position = transform.position;
             foreach(var resource in economyManager.GetComponent<EconomyManager>().globalResourceMarket) 
                 location.resourceMarket.Add(new Resource

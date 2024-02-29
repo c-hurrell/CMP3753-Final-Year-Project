@@ -641,6 +641,10 @@ PrefabInstance:
       value: Venus
       objectReference: {fileID: 0}
     - target: {fileID: 8509629269862261110, guid: 8a88634cc35886f49b645eef3a5c69f5, type: 3}
+      propertyPath: economyManager
+      value: 
+      objectReference: {fileID: 1738346697}
+    - target: {fileID: 8509629269862261110, guid: 8a88634cc35886f49b645eef3a5c69f5, type: 3}
       propertyPath: location.loadSpeed
       value: 5
       objectReference: {fileID: 0}
@@ -1064,6 +1068,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 3b7d8f00ea7ca1447a40091d2f636472, type: 2}
     - target: {fileID: 8509629269862261110, guid: 8a88634cc35886f49b645eef3a5c69f5, type: 3}
+      propertyPath: economyManager
+      value: 
+      objectReference: {fileID: 1738346697}
+    - target: {fileID: 8509629269862261110, guid: 8a88634cc35886f49b645eef3a5c69f5, type: 3}
       propertyPath: location.resourceProductions.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -1151,6 +1159,10 @@ PrefabInstance:
     - target: {fileID: 3805560449267332461, guid: cb40ec9d6f56b4745ab2f526b1517c17, type: 3}
       propertyPath: m_Name
       value: EconomyManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 3805560449267332461, guid: cb40ec9d6f56b4745ab2f526b1517c17, type: 3}
+      propertyPath: m_TagString
+      value: GlobalEconomy
       objectReference: {fileID: 0}
     - target: {fileID: 3896014767395234058, guid: cb40ec9d6f56b4745ab2f526b1517c17, type: 3}
       propertyPath: m_LocalPosition.x
