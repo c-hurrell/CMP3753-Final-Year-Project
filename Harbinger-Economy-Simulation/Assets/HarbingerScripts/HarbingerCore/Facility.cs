@@ -10,9 +10,10 @@ namespace HarbingerCore
         public string name;
         public int level;
         public int levelCap = 5;
-        public List<Tuple<string, float>> ResourceDemand;
+        // Have an idea for resource to be selectable as a drop down option?
+        public List<ResAmountPair> resourceDemand;
         // Construction Requirements
-
+        public List<ResAmountPair> constructionRequirements;
         public virtual void UpdateLevel(int levelChange)
         {
             level += levelChange;

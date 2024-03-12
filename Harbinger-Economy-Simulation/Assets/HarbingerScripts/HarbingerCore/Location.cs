@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Video;
 using UnityEngine.XR.WindowsMR.Input;
+using Debug = UnityEngine.Debug;
+using HarbingerScripts;
 
 namespace HarbingerCore
 {
@@ -11,10 +15,12 @@ namespace HarbingerCore
         public string name;
         public int locationID;
     }
-    [Serializable] public class Location : IEconomyActor
+    [Serializable] public class Location : EconomyActor
     {
         public event EventHandler<DockApproveEventArgs> DockApprove;
-        public event EventHandler<DockApproveEventArgs> Undock; 
+        public event EventHandler<DockApproveEventArgs> Undock;
+
+        public event EventHandler UpdateResourceDemands;
         
         //public static event EventHandler<TransactionEventArgs> Transaction;
         public static event EventHandler<BillEventArgs> Bill;
@@ -49,22 +55,30 @@ namespace HarbingerCore
         private List<FactionIdentifier> _vehicles;
 
         public bool allowsRefueling;
-        
+        public bool allowsConfiguration;
 
-        public void EconomyAwake()
+        public override void OnEconomyAwake()
+        {
+            Debug.Log(identifier.name + " -> Is awake");
+        }
+        public override void OnEconomyUpdate()
         {
             
-        }
-        public void EconomyUpdate()
-        {
+            Debug.Log(identifier.name + " -> Is updating");
+            
+            //if (true) return;
+            
+            // If I have vehicles waiting to dock check if they can now dock.
             if (dockingQueue.Count > 0 && dockedVehicles.Count <= dockingCapacity)
             {
                 var dockedVehicle = dockingQueue[0];
                 dockedVehicles.Add(dockedVehicle);
                 OnDockApprove(dockedVehicle);
             }
-            // Implement Unloading Logic
-            // I hate this - must be a better way to do this?
+
+            // If I have no docked vehicles I have no need to try and load or unload anything.
+            if (dockedVehicles.Count <= 0) return;
+            // I hate this code section looking into ways to improve it
             foreach (var vehicle in dockedVehicles) {
                 foreach (var cargo in vehicle.CargoManifest)
                 {
@@ -78,9 +92,18 @@ namespace HarbingerCore
             }
         }
 
-        public void EconomyDestroy()
+        public override void OnEconomyDestroy()
         {
             // Unsubscribe from all events and any other misc cleanup.
+            
+            // may handle this elsewhere
+            
+            // forces all vehicles to undock from the location
+            foreach (var transaction in dockedVehicles)
+            {
+                OnUndock(transaction);
+            }
+            dockedVehicles.Clear();
         }
         public void LoadToInventory(string resourceName, float amount)
         {
@@ -109,14 +132,17 @@ namespace HarbingerCore
             }
             return amount;
         }
-        public virtual void DockRequest(object source, DockEventArgs e)
+        public virtual void DockRequest(DockEventArgs e)
         {
             var newVehicle = new StationTransaction
             {
+                // Information received from vehicle
                 VehicleID = e.VehicleID,
                 InitiatingFaction = e.FactionID,
                 TargetFaction = factionID,
                 CargoManifest = e.CargoManifest,
+                ResourcesNeeded = e.ResourcesOnRoute,
+                
                 ResourcesTransferred = null,
                 Total = 0
             };
@@ -131,7 +157,11 @@ namespace HarbingerCore
                 OnDockApprove(newVehicle);
             }
         }
-        
+
+        public virtual void OnVehicleRequest(int vehicleID, int factID, VehicleAction action)
+        {
+            
+        }
         protected virtual void OnDockApprove(StationTransaction transaction)
         {
             DockApprove?.Invoke(this, new DockApproveEventArgs {
@@ -139,10 +169,10 @@ namespace HarbingerCore
             });
         }
 
+        // ensure removal of transaction is done before this is called
         protected virtual void OnUndock(StationTransaction transaction)
         {
-            Undock?.Invoke(this, new DockApproveEventArgs
-            {
+            Undock?.Invoke(this, new DockApproveEventArgs {
                 Transaction = transaction
             });
         }
@@ -155,6 +185,11 @@ namespace HarbingerCore
         public void OnDestroy()
         {
             // unsubscribe from all events.
+        }
+
+        protected virtual void OnUpdateResourceDemands()
+        {
+            UpdateResourceDemands?.Invoke(this, EventArgs.Empty);
         }
     }
     public class DockApproveEventArgs : EventArgs

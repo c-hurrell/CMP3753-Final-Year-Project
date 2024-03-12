@@ -11,5 +11,6 @@ public interface IEconomyActor
     // will run when called from fixed update all economy actions such as loading unloading are controlled through this
     public abstract void EconomyUpdate();
     
+    // will run when an actor is destroyed
     public abstract void EconomyDestroy();
 }

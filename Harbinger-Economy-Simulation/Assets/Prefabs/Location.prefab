@@ -75,6 +75,7 @@ GameObject:
   - component: {fileID: 8123637171166914526}
   - component: {fileID: 9125131619442892085}
   - component: {fileID: 8509629269862261110}
+  - component: {fileID: 6181664781134791852}
   m_Layer: 0
   m_Name: Location
   m_TagString: Location
@@ -193,13 +194,41 @@ MonoBehaviour:
       regionCentre: {x: 0, y: 0, z: 0}
     loadSpeed: 10
     resourceMarket: []
+    inDemandResources: []
+    producedResources: []
     spaceport:
       name: 
       level: 0
       levelCap: 5
+      resourceDemand: []
+      constructionRequirements: []
       capacity: 0
       loadingSpeed: 0
     productionFacilities: []
     dockingCapacity: 10
     allowsRefueling: 0
+    allowsConfiguration: 0
   economyManager: {fileID: 0}
+  EconomyAwake: {fileID: 11400000, guid: 5e285bc51628ee640bbc870feaff50e7, type: 2}
+  EconomyUpdate: {fileID: 11400000, guid: 2d5d947ad6dbcf84d996845db1f9b75c, type: 2}
+--- !u!135 &6181664781134791852
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4488039048083042900}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 1
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}

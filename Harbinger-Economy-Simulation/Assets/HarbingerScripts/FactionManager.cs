@@ -9,11 +9,13 @@ namespace HarbingerScripts
     {
         [SerializeField] public GameObject economyManager;
         [SerializeField] public Faction faction;
+        [SerializeField] public List<Vehicle> ownedVehicles;
         
 
         private void Awake()
         {
-            faction.InitFaction();
+            // Redundant function
+            //faction.InitFaction();
         }
         
         // Start is called before the first frame update

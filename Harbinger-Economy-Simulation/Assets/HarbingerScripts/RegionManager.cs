@@ -6,7 +6,7 @@ namespace HarbingerScripts
 {
     public class RegionManager : MonoBehaviour
     {
-        [SerializeField] public Region region;
+        //[SerializeField] public Region region;
         
         
         void Awake()

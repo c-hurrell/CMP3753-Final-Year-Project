@@ -24,7 +24,15 @@ namespace HarbingerCore
         public List<CargoHold> CargoManifest { get; set; }
         public List<Tuple<string,float>> ResourcesTransferred { get; set; }
         
+        // will be sent by a vehilce
         public List<string> ResourcesNeeded { get; set; }
+    }
+
+    public class LocationTransaction : Transaction
+    {
+        public int LocationID;
+        // Initiating faction will be the buyer
+        // Target faction will be the seller
     }
     
     // implement further transaction types here

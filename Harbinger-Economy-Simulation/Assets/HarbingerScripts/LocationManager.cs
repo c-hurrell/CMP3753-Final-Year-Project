@@ -1,5 +1,7 @@
+using System;
 using System.Data;
 using HarbingerCore;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -11,6 +13,21 @@ namespace HarbingerScripts
         
         [SerializeField] public GameObject economyManager;
 
+        [SerializeField] private VoidEventChannelSO EconomyAwake;
+        [SerializeField] private VoidEventChannelSO EconomyUpdate;
+
+        private void OnEnable()
+        {
+            EconomyAwake.OnEventRaised += location.OnEconomyAwake;
+            EconomyUpdate.OnEventRaised += location.OnEconomyUpdate;
+        }
+
+        private void OnDisable()
+        {
+            EconomyAwake.OnEventRaised -= location.OnEconomyAwake;
+            EconomyUpdate.OnEventRaised -= location.OnEconomyUpdate;
+        }
+        
         
         // When location is loading it needs to fetch the resources available in the global market
         private void Awake()
@@ -30,30 +47,24 @@ namespace HarbingerScripts
                     demand = 0
                 });
         }
-        // Start is called before the first frame update
-        void Start()
-        {
-        
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
-
         private void OnTriggerEnter(Collider other)
         {
             // If object is a vehicle listen for the the specific dock request
-            if(other.CompareTag("Vehicle"))
-                other.GetComponent<VehicleController>().vehicle.DockRequest += location.DockRequest;
+            if (other.CompareTag("Vehicle"))
+            {
+                other.GetComponent<VehicleController>().vehicleActions.RequestDock += location.DockRequest;
+                other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
+            }
         }
 
         private void OnTriggerExit(Collider other)
         {
             // If object is a vehicle stop listening for that specific dock request
-            if(other.CompareTag("Vehicle"))
-                other.GetComponent<VehicleController>().vehicle.DockRequest -= location.DockRequest;
+            if (other.CompareTag("Vehicle"))
+            {
+                other.GetComponent<VehicleController>().vehicleActions.RequestDock -= location.DockRequest;
+                other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
+            }
         }
     }
 }

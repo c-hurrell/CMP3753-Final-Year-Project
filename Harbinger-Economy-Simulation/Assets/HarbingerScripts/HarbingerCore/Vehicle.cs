@@ -9,7 +9,7 @@ namespace HarbingerCore
 {
     [Serializable] public class Vehicle
     {
-        public string name;
+        public string name; 
         public int vehicleID;
         public FactionIdentifier faction;
         
@@ -19,7 +19,9 @@ namespace HarbingerCore
         
         // Redundant as Undocking is handled by the location
         //public static event EventHandler UndockRequest;
-        
+
+        // This is for the faction to use.
+        public bool inUse;
         
         // Listen for approval
         
@@ -33,13 +35,18 @@ namespace HarbingerCore
         // May need to change this approach to account for movement of bodies in space e.g. orbit around a star?
         
         // This is important FactionManager will feed in calculated routes to this vehicle
-        public List<Vector3> route;
+        // Redundancy as unity will handle the physical aspect
+        public List<Destination> assignedRoute;
+        public Destination target;
+        // PathDirection relevant?
         public PathDirection direction = PathDirection.Along;
         
         //private int _currentTarget = 1;
         
         public float fuelCapacity;
         public float amountOfFuel;
+
+        public int cargoHoldCapacity;
         
         // base usage is the usage to maintain vehicle speed etc. whilst docked a vehicle would be using these.
         public float baseUsagePerTick;
@@ -74,21 +81,14 @@ namespace HarbingerCore
 
         public List<CargoHold> cargoHolds;
 
-        public void InitVehicle()
+        public void InitDestinations()
         {
-            
+            foreach (var dest in assignedRoute)
+            {
+                dest.Init();
+            }
         }
-        // Redundant function;
-        public void VehicleUpdate()
-        {
-            // Could change it so OnCollision in Unity handles the docking??
-            // if (currentPosition == path[_currentTarget])
-            // {
-            //     
-            // }
-            // Implement Movement mechanics?
-        }
-        // Amount inputted will be loaded and the return is the value loaded to be taken away from the total
+
         public float Refuel(float amount)
         {
             // If fuel is at capacity don't load any fuel
@@ -125,14 +125,17 @@ namespace HarbingerCore
         // =========================
         #region Dock Event Functions
         // Dock Event Functions
-        protected virtual void OnDockRequest()
+        
+        // Will be called when the vehicle wants to dock with a location
+        public virtual void OnDockRequest()
         {
+            // possible issue when in range of multiple locations?
             status = Status.WaitingToDock;
             DockRequest?.Invoke(null, new DockEventArgs {
                 VehicleID = vehicleID,
                 FactionID = faction.id,
-                CargoManifest = cargoHolds
-                // Add in sending loadable cargo?
+                CargoManifest = cargoHolds,
+                ResourcesOnRoute = resourcesDemandedOnRoute
                 // Add in fuel request
             });
         }
@@ -140,6 +143,7 @@ namespace HarbingerCore
         
         public virtual void OnDockApprove(object source, DockApproveEventArgs e)
         {
+            // check that it is this vehicle receiving approval
             if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
             
             status = Status.Docked;
@@ -147,9 +151,12 @@ namespace HarbingerCore
 
         public virtual void OnUndock(object source, DockApproveEventArgs e)
         {
+            // check that it is this vehicle being asked to undock
             if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
             
+            // receive updated cargo
             cargoHolds = e.Transaction.CargoManifest;
+            // resume travelling
             status = Status.Travelling;
         }
         #endregion
@@ -162,5 +169,7 @@ namespace HarbingerCore
         public int FactionID { get; set; }
         
         public List<CargoHold> CargoManifest { get; set; }
+        
+        public List<string> ResourcesOnRoute { get; set; }
     }
 }

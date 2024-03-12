@@ -40,6 +40,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "IncreaseGameSpeed",
+                    "type": "Button",
+                    "id": "5b6c254b-ebbc-446d-b1f0-3d9b5aa06e2c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=0.2)",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DecreaseGameSpeed",
+                    "type": "Button",
+                    "id": "af64444d-f675-4e50-8743-7b85086f740d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=0.2)",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -271,6 +289,28 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "50efadfd-a090-40e1-8e7a-69c8ff214e72",
+                    "path": "<Keyboard>/equals",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IncreaseGameSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a5ea995a-9e2a-4e23-9abd-678019bcc37d",
+                    "path": "<Keyboard>/minus",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DecreaseGameSpeed",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

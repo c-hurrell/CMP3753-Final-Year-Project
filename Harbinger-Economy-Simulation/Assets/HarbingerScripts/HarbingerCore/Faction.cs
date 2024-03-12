@@ -10,7 +10,7 @@ namespace HarbingerCore
         public string name = "Neutral";
         public int id = 0;
     }
-    [Serializable] public class Faction
+    [Serializable] public class Faction : EconomyActor
     {
         public FactionIdentifier factionIdentity;
 
@@ -23,7 +23,7 @@ namespace HarbingerCore
         
         public virtual void InitFaction()
         {
-            Location.Bill += OnBill;
+            
         }
         public virtual void OnBill(object source, BillEventArgs e)
         {
@@ -68,7 +68,22 @@ namespace HarbingerCore
         public void OnDestroy()
         {
             // unsubscribe from all events
-            Location.Bill -= OnBill;
+            //Location.Bill -= OnBill;
+        }
+
+        public override void OnEconomyAwake()
+        {
+            Location.Bill += OnBill;
+        }
+
+        public override void OnEconomyUpdate()
+        {
+            //Debug.Log(factionIdentity.name + " -> Is Updating");
+        }
+
+        public override void OnEconomyDestroy()
+        {
+            throw new NotImplementedException();
         }
     }
 
