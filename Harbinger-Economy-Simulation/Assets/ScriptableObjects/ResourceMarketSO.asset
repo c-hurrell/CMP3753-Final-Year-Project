@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cf4f47305cad8f4085bec476aed0532, type: 3}
+  m_Name: ResourceMarketSO
+  m_EditorClassIdentifier: 
+  resources:
+  - name: Fuel
+    id: 0
+    type: 1
+    baseVal: 25
+  - name: Ore
+    id: 1
+    type: 0
+    baseVal: 10
+  - name: Metal
+    id: 2
+    type: 0
+    baseVal: 25
+  - name: Water
+    id: 3
+    type: 1
+    baseVal: 25
+  - name: Oxygen
+    id: 4
+    type: 2
+    baseVal: 25
+  - name: Hydrogen
+    id: 5
+    type: 2
+    baseVal: 25
+  - name: Tritium
+    id: 6
+    type: 2
+    baseVal: 35
