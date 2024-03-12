@@ -132,8 +132,9 @@ namespace HarbingerCore
             }
             return amount;
         }
-        public virtual void DockRequest(DockEventArgs e)
+        public virtual void DockRequest(object source, DockEventArgs e)
         {
+            Debug.Log(identifier.name + " -> Dock request received");
             var newVehicle = new StationTransaction
             {
                 // Information received from vehicle
@@ -164,6 +165,7 @@ namespace HarbingerCore
         }
         protected virtual void OnDockApprove(StationTransaction transaction)
         {
+            Debug.Log(identifier.name +" -> Dock Approve Event Called");
             DockApprove?.Invoke(this, new DockApproveEventArgs {
                 Transaction = transaction
             });

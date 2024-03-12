@@ -52,8 +52,11 @@ namespace HarbingerScripts
             // If object is a vehicle listen for the the specific dock request
             if (other.CompareTag("Vehicle"))
             {
-                other.GetComponent<VehicleController>().vehicleActions.RequestDock += location.DockRequest;
-                other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
+                other.GetComponent<VehicleController>().vehicle.DockRequest += location.DockRequest;
+                
+                
+                //other.GetComponent<VehicleController>().vehicleActions.RequestDock += location.DockRequest;
+                //other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
             }
         }
 
@@ -62,8 +65,9 @@ namespace HarbingerScripts
             // If object is a vehicle stop listening for that specific dock request
             if (other.CompareTag("Vehicle"))
             {
-                other.GetComponent<VehicleController>().vehicleActions.RequestDock -= location.DockRequest;
-                other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
+                other.GetComponent<VehicleController>().vehicle.DockRequest -= location.DockRequest;
+                //other.GetComponent<VehicleController>().vehicleActions.RequestDock -= location.DockRequest;
+                //other.GetComponent<VehicleController>().vehicleActions.VehicleRequest += location.OnVehicleRequest;
             }
         }
     }

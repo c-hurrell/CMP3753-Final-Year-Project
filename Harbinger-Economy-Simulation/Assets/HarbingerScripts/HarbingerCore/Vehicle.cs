@@ -23,6 +23,8 @@ namespace HarbingerCore
         // This is for the faction to use.
         public bool inUse;
         
+        public bool atTargetLocation;
+        
         // Listen for approval
         
         public enum PathDirection
@@ -129,6 +131,7 @@ namespace HarbingerCore
         // Will be called when the vehicle wants to dock with a location
         public virtual void OnDockRequest()
         {
+            Debug.Log(name +" -> Dock Request Sent");
             // possible issue when in range of multiple locations?
             status = Status.WaitingToDock;
             DockRequest?.Invoke(null, new DockEventArgs {
@@ -143,14 +146,17 @@ namespace HarbingerCore
         
         public virtual void OnDockApprove(object source, DockApproveEventArgs e)
         {
+            Debug.Log(name + " -> Received dock approval!");
             // check that it is this vehicle receiving approval
-            if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
+            status = Status.Docked;
             
+            if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
             status = Status.Docked;
         }
 
         public virtual void OnUndock(object source, DockApproveEventArgs e)
         {
+            Debug.Log(name + " -> Received Undock approval!");
             // check that it is this vehicle being asked to undock
             if (e.Transaction.VehicleID != vehicleID || e.Transaction.InitiatingFaction != faction.id) return;
             

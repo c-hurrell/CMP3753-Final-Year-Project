@@ -18,6 +18,8 @@ namespace HarbingerScripts
         [SerializeField] private VoidEventChannelSO e_Update;
 
         private Rigidbody rb;
+
+        
         
         private void Awake()
         {
@@ -55,26 +57,28 @@ namespace HarbingerScripts
             
             const float turnSpeed = 10.0f;
 
-            // If Im waiting to dock do this.
-            if (vehicle.status == Vehicle.Status.WaitingToDock)
+            if (vehicle.atTargetLocation && vehicle.status == Vehicle.Status.Travelling)
             {
-                if (rb.velocity.magnitude > 0)
-                {
-                    rb.drag = 100;
-                }
-                else
-                {
-                    vehicle.OnDockRequest();
-                }
-                    
+                vehicle.OnDockRequest();
             }
+
+            if (vehicle.status == Vehicle.Status.Docked)
+            {
+                Debug.Log("Im docked!");
+            }
+            
             // First ensure vehicle is facing the target...
             var targetRotation = Quaternion.LookRotation(vehicle.target.position - transform.position);
             targetRotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
             rb.MoveRotation(targetRotation);
             
             // If I'm travelling perform acceleration 
-            if (vehicle.status != Vehicle.Status.Travelling) return;
+            if (vehicle.status != Vehicle.Status.Travelling)
+            {
+                rb.drag = 5;
+                return;
+            }
+            
             rb.drag = 0.5f;
             
             // If I'm at max speed don't accelerate further.
@@ -96,8 +100,7 @@ namespace HarbingerScripts
                 if (other.gameObject == vehicle.target.location)
                 {
                     Debug.Log("Vehicle has arrived at location!");
-                    vehicle.status = Vehicle.Status.WaitingToDock;
-                    
+                    vehicle.atTargetLocation = true;
                 }
                 other.GetComponent<LocationManager>().location.DockApprove += vehicle.OnDockApprove;
                 other.GetComponent<LocationManager>().location.Undock += vehicle.OnUndock;
@@ -110,6 +113,7 @@ namespace HarbingerScripts
         private void OnTriggerExit(Collider other)
         {
             if (other.CompareTag("Location")) {
+                Debug.Log("Unsubscribing from location events!");
                 other.GetComponent<LocationManager>().location.DockApprove -= vehicle.OnDockApprove;
                 other.GetComponent<LocationManager>().location.Undock -= vehicle.OnUndock;
                 // Implement other logic...
