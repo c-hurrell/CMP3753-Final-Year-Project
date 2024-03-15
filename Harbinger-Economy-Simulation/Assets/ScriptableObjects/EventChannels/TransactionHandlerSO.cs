@@ -7,23 +7,43 @@ using UnityEngine.Events;
 [CreateAssetMenu(fileName = "TransactionHandler", menuName = "Events/TransactionHandler")]
 public class TransactionHandlerSO : ScriptableObject
 {
-    public UnityAction<Transaction> Transaction;
-    public UnityAction<StationTransaction> StationTransaction;
+    public UnityAction<Transaction> Bill;
+    public UnityAction<Transaction> Receive;
     // Implement other transaction types
+    // Locations will listen for these events as well as UI to see completed transactions
+    public UnityAction<Transaction> TransactionApprove;
+    public UnityAction<Transaction> TransactionDeclined;
 
-    public void OnTransaction(Transaction transaction)
+    public void OnBill(Transaction transaction)
     {
-        if (Transaction != null)
-            Transaction.Invoke(transaction);
+        if (Bill != null)
+            Bill.Invoke(transaction);
         else 
-            Debug.LogWarning("Transaction Event is not subscribed to!");
+            Debug.LogWarning("Bill Event is not subscribed to!");
     }
 
-    public void OnStationTransaction(StationTransaction transaction)
+    public void OnReceive(Transaction transaction)
     {
-        if (StationTransaction != null)
-            StationTransaction.Invoke(transaction);
-        else 
-            Debug.LogWarning("StationTransaction Event is not subscribed to!");
+        if (Receive != null)
+            Bill.Invoke(transaction);
+        else
+            Debug.LogWarning("Receive Event is not subscribed to!");
     }
+    
+    public void OnTransactionApprove(Transaction transaction)
+    {
+        if (TransactionApprove != null)
+            TransactionApprove.Invoke(transaction);
+        else 
+            Debug.LogWarning("TransactionApprove Event is not subscribed to!");
+    }
+
+    public void OnTransactionDeclined(Transaction transaction)
+    {
+        if (TransactionDeclined != null)
+            TransactionDeclined.Invoke(transaction);
+        else 
+            Debug.LogWarning("TransactionApprove Event is not subscribed to!");
+    }
+    
 }

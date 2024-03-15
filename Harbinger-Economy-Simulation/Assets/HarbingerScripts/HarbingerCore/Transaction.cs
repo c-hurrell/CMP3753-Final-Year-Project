@@ -11,6 +11,9 @@ namespace HarbingerCore
         // Faction that is targeted for it e.g. station the vehicle docks at
         public int TargetFaction { get; set; }
         
+        // Used for receiving checks and identifying where its gone
+        public int LocationID { get; set; }
+        
         // <summary>
         // Total
         // + means Initiating is buying

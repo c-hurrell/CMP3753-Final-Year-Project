@@ -87,6 +87,8 @@ namespace HarbingerCore
         }
     }
 
+    
+    // Redundant
     public class ApprovalEventArgs : EventArgs
     {
         public int LocationID { get; set; }
